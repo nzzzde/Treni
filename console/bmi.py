@@ -9,10 +9,10 @@ print(bmi_value)										#Derivation of BMI
 
 #It is necessary to add recommendations according to the result of BMI
 if bmi_value < 18.5:				#Analysis of BMI
-		print("Недостатня вага")		
-elif 18.5 <= bmi_value > 24.9:
+        print("Недостатня вага")		
+elif bmi_value >= 18.5 and bmi_value < 24.9:
         print("Нормальна вага")
-elif 25 <= bmi_value > 29.9:
+elif bmi_value >=25 and bmi_value  < 29.9:
         print("Надмірна вага")
-else:
+else: 
         print("Ожиріння")
