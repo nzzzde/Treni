@@ -21,9 +21,9 @@ class BMIModel:
 
         if bmi_value < 18.5:
             return "Недостатня вага"
-        elif 18.5 <= bmi_value > 24.9:
+        elif 18.5 <= bmi_value <= 24.9:
             return "Нормальна вага"
-        elif 25 <= bmi_value > 29.9:
+        elif 25 <= bmi_value <= 29.9:
             return "Надмірна вага"
         else:
             return "Ожиріння"
