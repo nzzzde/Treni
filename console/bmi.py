@@ -1,6 +1,48 @@
 import random
 
 
+def weight_in():            # User enters weight
+    # wght = input("Введіть вагу: ")
+    while True:
+        try:
+            wght = input("Введіть вагу: ")
+            try:
+                weight = float(wght)
+                return weight
+            except ValueError:
+                print("Було введено не коректну вагу! ще раз <<")
+                raise
+            break
+        except ValueError:
+            print("Помилку було оброблено")
+
+    '''if wght.isdigit():
+        return float(wght)
+    else:
+        raise ValueError(
+            "\t>> Було введено не коректну вагу! Вагу потрібно вводити цифрами <<")'''
+
+
+def heiіght_in():            # User enters height
+    hght = input("Введіть ріст в см: ")
+    if hght.isdigit():
+        return float(hght)/100
+    else:
+        raise ValueError(
+            "\t>> Було введено не коректний ріст! Ріст потрібно вводити цифрами <<")
+
+
+# Checking the correctness of variables
+def check_correct_variables(wght, hght):
+    if not (0 <= hght < 3 and 0 <= wght <= 300):
+        raise ValueError(
+            "Будь ласка, введіть реалістичні значення зросту чи ваги.")
+
+
+def bmi_calculation(wght, hght):            # Calculation of BMI
+    return wght / (hght ** 2)
+
+
 def switch_case_set(set):
     if set == 1:
         return "зниження ваги"
@@ -12,18 +54,17 @@ def switch_case_set(set):
         raise ValueError("Помилка з обраним сетом тренувань...")
 
 
-weight = float(input("Введіть вагу: "))                    # User enters weight
-height = float(input("Введіть ріст в см: ")) / 100        # User enters height
+weight = weight_in()
+height = height_in()
 
-if not (0 <= height < 3 and 0 <= weight <= 300):           # Checking the correctness of variables
-    raise ValueError(
-        "Будь ласка, введіть реалістичні значення зросту та ваги.")
+check_correct_variables(weight, height)
 
-bmi_value = weight / (height ** 2)                         # Calculation of BMI
+bmi_value = bmi_calculation(weight, height)
+
 print(bmi_value)                                            # Derivation of BMI
 
-if bmi_value < 18.5:                                        # Analysis of BMI
-    # Random recommendations for underweight
+# Analysis of BMI# Random recommendations for underweight
+if bmi_value < 18.5:
     recommendations_underweight = [
         "Ваш ІМТ є нижчим норми. Перед початком тренувань рекомендуємо звернутися до спеціаліста. Ви можете обрати план тренувань «набір ваги» і вводити у раціон більшу кількість калорій.",
         "Ваш ІМТ є заниженим. Перед початком тренувань рекомендуємо звернутися до спеціаліста для індивідуальної консультації.",
@@ -52,9 +93,8 @@ else:
     ]
     print(random.choice(recommendations_obesity))
 
-# пропонуємо користувачу вибрати сет тренувань для: скидання/підтримування/набір ваги
-if bmi_value < 18.5:
-    print("За результатами ІМТ ми пропонуємо сет тренувань для «набору ваги»")
+if bmi_value < 18.5:            # пропонуємо користувачу вибрати сет тренувань для: скидання/підтримування/набір ваги
+    print("За результатами ІМТ вам доступний сет тренувань для «набору ваги»")
     set = 3
 elif bmi_value >= 18.5 and bmi_value < 24.9:
     print("За результатами ІМТ ми пропонуємо сет тренувань для «зниження ваги» «підтримки ваги» «набору ваги»")
@@ -67,4 +107,6 @@ else:
     if not (set == 1 or set == 2):           # Checking the correctness of variables
         raise ValueError("Ви ввели не коректну команду...")
 
-print(f"Ви обрали cет тренувань для {switch_case_set(set)}")
+print(f"Сет тренувань для {switch_case_set(set)}")
+
+# frequency
