@@ -2,13 +2,37 @@ from abc import ABC, abstractmethod
 from models.bmi import BMIModel
 
 
-class StorageInterface(ABC):
+class UserStorageInterface(ABC):
     @abstractmethod
-    def save_user(self, user_id: str, phone_number: str) -> bool:
+    def save_user(self, user_id: str, phone_number: str, language: str) -> bool:
         pass
 
     @abstractmethod
-    def save_bmi_record(self, user_id: int, BMI: BMIModel) -> bool:
+    def user_exists(self, user_id: str) -> bool:
+        pass
+
+    @abstractmethod
+    def get_user(self, user_id: str):
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_language(self, user_id: str) -> str:
+        pass
+
+
+class BmiStorageInterface(ABC):
+    @abstractmethod
+    def save_bmi_record(self, user_id: int, bmi: BMIModel) -> bool:
+        pass
+
+    @abstractmethod
+    def update_bmi_record(
+        self, user_id: int, weight: float, height: float, bmi_value: float
+    ) -> bool:
         pass
 
     @abstractmethod
