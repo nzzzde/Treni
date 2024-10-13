@@ -1,86 +1,127 @@
-from telebot.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from storage.user import UserStorage
-import logging
-
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+from telebot.types import (
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    Message,
 )
-logger = logging.getLogger(__name__)
+from storage.user import UserStorage
+from translations.translations import translations
+from telegram.menu import send_menu
+from logger.logger import setup_logger
+
+logger = setup_logger(__name__, log_file="bot.log")
 
 user_storage = UserStorage()
+temp_user_storage = {}
 
 
-def start_command(bot, message) -> None:
-    welcome_message = "Раді вас вітати у TreniBot!"
-    bot.send_message(message.chat.id, welcome_message)
+def start_command(bot, message: Message, lang: str = "uk") -> None:
+    user_id = message.chat.id
+    logger.info("Start command invoked by user %s", user_id)
 
-    contact_button = KeyboardButton("Поділитися номером", request_contact=True)
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(contact_button)
-
-    bot.send_message(
-        message.chat.id,
-        "Для початку роботи надішліть ваш номер телефону!",
-        reply_markup=keyboard,
-    )
-
-
-def process_contact(bot, message) -> None:
-    if message.contact and hasattr(message.contact, "phone_number"):
-        phone_number = message.contact.phone_number
-        user_id = message.chat.id
-
-        try:
-            user_saved = user_storage.save_user(user_id, phone_number)
-            if user_saved:
-                bot.send_message(
-                    message.chat.id,
-                    "Дякуємо за реєстрацію! Тепер ви можете користуватися TreniBot.",
-                    reply_markup=ReplyKeyboardRemove(),
-                )
-                show_bmi_button(bot, message.chat.id)
-                logger.info(
-                    "User %s saved with phone number: %s", user_id, phone_number
-                )
-            else:
-                error_message = (
-                    "Не вдалося зберегти ваш номер телефону. Спробуйте ще раз."
-                )
-                bot.send_message(message.chat.id, error_message)
-                logger.error(
-                    "Failed to save user %s: Database operation failed", user_id
-                )
-
-        except Exception as e:
-            error_message = "Не вдалося зберегти ваш номер телефону. Спробуйте ще раз."
-            bot.send_message(message.chat.id, error_message)
-            logger.error("Error saving user %s: %s", user_id, e)
-
+    if user_storage.user_exists(user_id):
+        _welcome_back(bot, user_id, lang)
     else:
-        logger.warning("Contact information not received for user %s.", message.chat.id)
-        prompt_contact_request(bot, message)
+        _ask_language_selection(bot, user_id)
 
 
-def show_bmi_button(bot, chat_id: int) -> None:
-    bmi_button = KeyboardButton("/bmi")
-    bmi_keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    bmi_keyboard.add(bmi_button)
+def process_contact(bot, message: Message) -> None:
+    user_id = message.chat.id
+    logger.info("Processing contact for user %s", user_id)
+
+    if user_id not in temp_user_storage:
+        logger.warning("User %s is not in temporary storage.", user_id)
+        return
+
+    lang = temp_user_storage[user_id]["language"]
+
+    if not _is_valid_contact(message):
+        _request_contact_again(bot, user_id, lang)
+        return
+
+    phone_number = message.contact.phone_number
+    _register_user(bot, user_id, phone_number, lang)
+
+
+def _welcome_back(bot, user_id: int, lang: str) -> None:
+    logger.info("User %s found in storage. Sending welcome back message.", user_id)
+    bot.send_message(
+        user_id,
+        translations["welcome_back"][lang],
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    show_menu(bot, user_id, lang)
+
+
+def _ask_language_selection(bot, chat_id: int) -> None:
+    logger.debug("Asking user %s for language selection.", chat_id)
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard.add(KeyboardButton("🇺🇦 Українська"), KeyboardButton("🇬🇧 English"))
 
     bot.send_message(
-        chat_id,
-        "Тепер ви можете ввести ваші дані для обчислення BMI.",
-        reply_markup=bmi_keyboard,
+        chat_id, translations["select_language"]["en"], reply_markup=keyboard
+    )
+    bot.register_next_step_handler_by_chat_id(
+        chat_id, lambda message: _handle_language_selection(bot, message)
     )
 
 
-def prompt_contact_request(bot, message) -> None:
-    contact_button = KeyboardButton("Поділитися номером", request_contact=True)
-    keyboard = ReplyKeyboardMarkup(one_time_keyboard=True)
-    keyboard.add(contact_button)
+def _handle_language_selection(bot, message: Message) -> None:
+    user_id = message.chat.id
+    selected_lang = "uk" if message.text == "🇺🇦 Українська" else "en"
+    temp_user_storage[user_id] = {"language": selected_lang}
 
+    logger.info("User %s selected language: %s", user_id, selected_lang)
+    _send_contact_request(bot, user_id, selected_lang)
+
+
+def _register_user(bot, user_id: int, phone_number: str, lang: str) -> None:
+    logger.debug("Received contact for user %s: %s", user_id, phone_number)
+    try:
+        if user_storage.save_user(user_id, phone_number, lang):
+            bot.send_message(
+                user_id,
+                translations["registration_success"][lang],
+                reply_markup=ReplyKeyboardRemove(),
+            )
+            show_menu(bot, user_id, lang)
+            logger.info("User %s saved with phone number: %s", user_id, phone_number)
+        else:
+            _handle_save_error(bot, user_id, lang)
+        del temp_user_storage[user_id]
+    except Exception as e:
+        _handle_save_error(bot, user_id, lang, e)
+
+
+def show_menu(bot, chat_id: int, lang: str) -> None:
+    logger.info("Showing menu for user %s", chat_id)
+    send_menu(bot, chat_id, translations["menu_prompt"][lang], lang)
+
+
+def _send_contact_request(bot, user_id: int, lang: str) -> None:
     bot.send_message(
-        message.chat.id,
-        "Будь ласка, надішліть ваш номер телефону.",
-        reply_markup=keyboard,
+        user_id,
+        translations["request_contact"][lang],
+        reply_markup=ReplyKeyboardMarkup(
+            resize_keyboard=True, one_time_keyboard=True
+        ).add(
+            KeyboardButton(translations["contact_button"][lang], request_contact=True)
+        ),
     )
+
+
+def _request_contact_again(bot, user_id: int, lang: str) -> None:
+    logger.warning("Contact information not received for user %s.", user_id)
+    _send_contact_request(bot, user_id, lang)
+
+
+def _is_valid_contact(message: Message) -> bool:
+    return message.content_type == "contact" and message.contact is not None
+
+
+def _handle_save_error(bot, user_id: int, lang: str, error: Exception = None) -> None:
+    if error:
+        logger.error("Error saving user %s: %s", user_id, error)
+    else:
+        logger.warning("Failed to save user %s", user_id)
+    bot.send_message(user_id, translations["registration_failed"][lang])

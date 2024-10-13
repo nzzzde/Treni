@@ -1,88 +1,91 @@
-from typing import Optional
+from typing import Optional, Tuple
 from models.bmi import BMIModel
 from telebot.types import Message
-import logging
+from translations.translations import translations
+from telegram.menu import send_menu
+from logger.logger import setup_logger
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__, log_file="bmi_app.log")
 
 
-def process_bmi_command(bot, storage, message: Message) -> None:
+def process_bmi_command(message: Message, bot, storage, lang: str) -> None:
+    weight, height = _extract_weight_height(message)
+
+    if weight is None or height is None:
+        _send_usage_message(message.chat.id, bot, lang)
+        return
+
+    user_id = message.from_user.id
+
     try:
-        args = message.text.split()
-        if len(args) != 2:
-            _send_usage_message(bot, message.chat.id)
-            return
-
-        weight, height = _parse_weight_height(args)
-        if weight is None or height is None:
-            _send_usage_message(bot, message.chat.id)
-            return
-
-        user_id = message.from_user.id
-
-        bmi_value = _calculate_and_save_bmi(storage, user_id, weight, height)
-        recommendations = BMIModel(weight, height).get_recommendation(bmi_value)
-        bot.send_message(
-            message.chat.id, f"Ваш ІМТ: {bmi_value}\nРекомендація: {recommendations}"
+        bmi_value, recommendations = _update_or_create_bmi(
+            storage, user_id, weight, height, lang
         )
 
-    except RuntimeError as re:
-        if str(re) == "BMI record already exists for this user":
-            bot.send_message(
-                message.chat.id, "Ви вже додали свій ІМТ. Оновлення неможливе."
-            )
-        else:
-            bot.send_message(
-                message.chat.id, "На жаль, сталася помилка при додаванні вашого ІМТ."
-            )
+        bot.send_message(
+            message.chat.id,
+            translations["bmi_result"][lang].format(
+                bmi=bmi_value, recommendation=recommendations
+            ),
+        )
+        send_menu(bot, message.chat.id, translations["menu_prompt"][lang], lang)
 
+    except ValueError as ve:
+        logger.warning("ValueError processing BMI for user %s: %s", user_id, ve)
+        bot.send_message(message.chat.id, translations["invalid_bmi_input"][lang])
+    except RuntimeError as re:
+        _handle_runtime_error(re, message, bot, lang)
     except Exception as e:
         logger.error(
-            "Unexpected error processing BMI command for user %s: %s",
-            message.from_user.id,
-            e,
+            "Unexpected error processing BMI command for user %s: %s", user_id, e
         )
-        bot.send_message(
-            message.chat.id, "На жаль, у TreniBot виникла проблема. Спробуйте ще раз."
-        )
+        bot.send_message(message.chat.id, translations["error_occurred"][lang])
 
 
-def _send_usage_message(bot, chat_id: int) -> None:
-    bot.send_message(chat_id, "Введіть вагу (кг) та ріст (см). Наприклад: 70 175")
+def _update_or_create_bmi(
+    storage, user_id: int, weight: float, height: float, lang: str
+) -> Tuple[float, str]:
+    bmi_model = BMIModel(user_id, weight, height, lang)
+
+    if not bmi_model.validate():
+        error_message = translations["invalid_bmi_input"][lang]
+        raise ValueError(error_message)
+
+    if storage.bmi_exists(user_id):
+        storage.update_bmi_record(user_id, weight, height, bmi_model.calculate_bmi())
+        return bmi_model.calculate_bmi(), bmi_model.get_recommendation()
+
+    if not storage.save_bmi_record(user_id, bmi_model):
+        raise RuntimeError("Failed to save BMI record")
+
+    return bmi_model.calculate_bmi(), bmi_model.get_recommendation()
 
 
-def _parse_weight_height(args: list[str]) -> tuple[Optional[float], Optional[float]]:
+def _send_usage_message(chat_id: int, bot, lang: str = "uk") -> None:
+    bot.send_message(chat_id, translations["invalid_input"][lang])
+
+
+def _extract_weight_height(message: Message) -> Tuple[Optional[float], Optional[float]]:
+    if not message.text:
+        logger.warning("Message from user %s has no text", message.from_user.id)
+        return None, None
+
     try:
-        weight = float(args[0])
-        height = float(args[1])
+        weight, height = map(float, message.text.split())
         return weight, height
-    except ValueError as ve:
-        logger.error("Invalid weight or height input: %s. Error: %s", args, ve)
+    except (ValueError, TypeError):
+        logger.warning(
+            "Invalid input for weight/height from user %s: %s",
+            message.from_user.id,
+            message.text,
+        )
         return None, None
 
 
-def _calculate_and_save_bmi(
-    storage, user_id: int, weight: float, height: float
-) -> float:
-    try:
-        if storage.bmi_exists(user_id):
-            logger.error("BMI record already exists for user %s", user_id)
-            raise RuntimeError("BMI record already exists for this user")
-
-        # Calculate BMI and save the record
-        bmi_model = BMIModel(weight, height)
-        bmi_value = bmi_model.calculate_bmi()
-
-        success = storage.save_bmi_record(user_id, bmi_model)
-        if not success:
-            logger.error("Failed to save BMI record for user %s", user_id)
-            raise RuntimeError("Failed to save BMI record")
-
-        return bmi_value
-
-    except Exception as e:
-        logger.error("Error calculating and saving BMI for user %s: %s", user_id, e)
-        raise
+def _handle_runtime_error(re: RuntimeError, message: Message, bot, lang: str) -> None:
+    error_message = (
+        translations["bmi_exists"][lang]
+        if "already exists" in str(re)
+        else translations["error_occurred"][lang]
+    )
+    bot.send_message(message.chat.id, error_message)

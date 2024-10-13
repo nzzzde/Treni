@@ -1,62 +1,49 @@
 import random
+from translations.translations import translations
 
 
 class BMIModel:
-    def __init__(
-        self,
-        weight: float,
-        height: float,
-        calculated_bmi=None,
-    ):
+    def __init__(self, user_id: int, weight: float, height: float, lang: str):
+        self.user_id = user_id
         self.weight = weight
-        self.height = height / 100
-        self.validate()
+        self.height = height
+        self.lang = lang
+        self.calculated_bmi = None
 
-    def validate(self):
-        if not (0 < self.height <= 3 and 0 < self.weight <= 300):
-            raise ValueError("Будь ласка, введіть реалістичні значення зросту та ваги.")
-        return round(self.weight / (self.height**2), 2)
+    def validate(self) -> bool:
+        if not (0 < self.height <= 300 and 0 < self.weight <= 300):
+            return False
+        return True
 
     def calculate_bmi(self) -> float:
-        bmi = self.weight / (self.height**2)
-        self.calculated_bmi = bmi
-        return round(bmi, 1)
+        height_in_meters = self.height / 100
+        bmi = self.weight / (height_in_meters**2)
+        self.calculated_bmi = round(bmi, 1)
+        return self.calculated_bmi
 
     def bmi_category(self) -> str:
         bmi_value = self.calculate_bmi()
 
         if bmi_value < 18.5:
-            return "Недостатня вага"
+            return "Underweight"
         elif 18.5 <= bmi_value <= 24.9:
-            return "Нормальна вага"
+            return "Normal weight"
         elif 25 <= bmi_value <= 29.9:
-            return "Надмірна вага"
+            return "Overweight"
         else:
-            return "Ожиріння"
+            return "Obesity"
 
-    def get_recommendation(self, bmi_value):
-        if bmi_value < 18.5:
-            recommendations = [
-                "Ваш ІМТ є нижчим норми. Перед початком тренувань рекомендуємо звернутися до спеціаліста. Ви можете обрати план тренувань «набір ваги» і вводити у раціон більшу кількість калорій.",
-                "Ваш ІМТ є заниженим. Перед початком тренувань рекомендуємо звернутися до спеціаліста для індивідуальної консультації.",
-                "Ваш ІМТ є нижчим від норми. Рекомендуємо звернутися до спеціаліста для індивідуальної консультації.",
-            ]
-        elif 18.5 <= bmi_value <= 24.9:
-            recommendations = [
-                "Вітаємо, у вас ІМТ в межах норми. Ми рекомендуємо обрати наш план тренувань «підтримка ваги».",
-                "Ваш ІМТ в нормі. Рекомендуємо план «підтримка ваги» для підтримки вашого стану.",
-                "Вітаємо, у вас нормальний ІМТ. Ми рекомендуємо план тренувань «підтримка ваги».",
-            ]
-        elif 25 <= bmi_value <= 29.9:
-            recommendations = [
-                "Ваш ІМТ є завищеним, рекомендуємо план тренувань «зниження ваги».",
-                "Ваш ІМТ трохи перевищує норму. Рекомендуємо вам план тренувань «зниження ваги».",
-                "Ваш ІМТ є трохи завищеним. Рекомендуємо вам план тренувань «зниження ваги».",
-            ]
-        else:
-            recommendations = [
-                "Ваш ІМТ свідчить про ожиріння. Рекомендуємо звернутись до спеціаліста та обрати план «зниження ваги».",
-                "У вас ІМТ, що вказує на ожиріння. Рекомендуємо обрати план тренувань «зниження ваги».",
-                "Ваш ІМТ свідчить про ожиріння. Рекомендуємо консультацію з дієтологом і план «зниження ваги».",
-            ]
+    def get_recommendation(self) -> str:
+        bmi_value = self.calculate_bmi()
+        recommendations = self._recommendations_by_bmi(bmi_value)
         return random.choice(recommendations)
+
+    def _recommendations_by_bmi(self, bmi_value: float):
+        if bmi_value < 18.5:
+            return translations["recommendations_underweight"][self.lang]
+        elif 18.5 <= bmi_value <= 24.9:
+            return translations["recommendations_normal"][self.lang]
+        elif 25 <= bmi_value <= 29.9:
+            return translations["recommendations_overweight"][self.lang]
+        else:
+            return translations["recommendations_obesity"][self.lang]
