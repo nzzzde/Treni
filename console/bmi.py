@@ -1,5 +1,6 @@
 import random
-
+import time
+from datetime import datetime, timedelta
 
 def weight_in():                            # User enters weight
     while True:
@@ -10,15 +11,14 @@ def weight_in():                            # User enters weight
             print("Вагу потрібно вводити числом! \nСпробуйте ще раз.\n")
         else:
             try:
-                if (15 <= weight <= 300):        # Checking the correctness of variables
+                if (15 <= weight <= 300):        # Checking thecorrectness of variables
                     return weight
                 else:
                     raise ValueError(
                         f"{weight}кг не є реалістичною вагою людини")
             except ValueError as er_ror:
                 print(f"{er_ror}\nСпробуйте ще раз.\n")
-
-
+ 
 def height_in():                            # User enters height
     while True:
         hght = input("Введіть ріст в см: ")
@@ -28,19 +28,17 @@ def height_in():                            # User enters height
             print("Ріст потрібно вводити числом! \nСпробуйте ще раз.\n")
         else:
             try:
-                if (0.3 <= height <= 3):        # Checking the correctness of variables
+                if (0.3 <= height <= 3):        # Checking the correctnessof variables
                     return height
                 else:
                     raise ValueError(
                         f"{height}м не є реалістичним ростом людини")
             except ValueError as er_ror:
                 print(f"{er_ror}\nСпробуйте ще раз.\n")
-
-
+ 
 def bmi_calculation(wght, hght):            # Calculation of BMI
     return wght / (hght ** 2)
-
-
+ 
 def choice_set(bmi):  # user selects a training set
     while True:
         try:
@@ -63,9 +61,8 @@ def choice_set(bmi):  # user selects a training set
             return set
         except ValueError:
             print("Ви ввели не коректну команду...\nСпробуйте ще раз.\n")
-
-
-def switch_case_set(set):  # checking and converting the selection set
+ 
+def switch_case_set(set):  # checking and converting the selectionset
     if set == 1:
         return "зниження ваги"
     elif set == 2:
@@ -74,9 +71,8 @@ def switch_case_set(set):  # checking and converting the selection set
         return "набору ваги"
     else:
         raise ValueError("Помилка з обраним сетом тренувань...")
-
-
-def choice_frequency():  # choosing the frequency of training per week
+ 
+def choice_frequency():  # choosing the frequency of training perweek
     while True:
         try:
             freq = float(
@@ -89,22 +85,38 @@ def choice_frequency():  # choosing the frequency of training per week
         except ValueError:
             print("Ви ввели не коректну команду...\nСпробуйте ще раз.\n")
 
-
-def check_for_help():  # choosing the frequency of training per week
-    key = float(input(
-        "Натисніть '0', якщо хочете переглянути довідник, або будь-яку іншу клавішу для виходу: "))
-    if (key == 0):
+def select_training_sets(frequency):  # вибір тренувань в залежності від частоти
+    if frequency == 1:
+        return [random.choice(training_sets)]  # Один випадковий сет
+    elif frequency == 2:
+        return random.sample(training_sets, 2)  # Два унікальні сети без повторень
+    elif frequency == 3:
+        return training_sets  # Всі три сети
+ 
+def check_for_help():  # Choosing the frequency of training per week
+    help_text = """
+    Довідник:
+    1. Рекомендовані інтервали між вправами 20~30 секунд.
+    2. Підтримуйте баланс води в організмі протягом дня.
+    3. Дотримуйтесь частоти тренувань 1, 2 або 3 рази на тиждень.
+    4. Утримуйтесь від суворих дієт.
+    Пам'ятайте, що головне — почати: зробити перший маленький крок назустріч здоровому тілу і щасливому життю!
+    """
+    
+    # Запит користувача
+    key = input("Натисніть '0', якщо хочете переглянути довідник, або будь-яку іншу клавішу для виходу: ")
+    
+    if key == '0':  # Якщо введено '0', виводимо довідник
+        print(help_text)
         return True
-
-
+ 
 weight = weight_in()
 height = height_in()
-
-
+ 
 bmi_value = round(bmi_calculation(weight, height))          # Derivation of BMI
-
+ 
 print(f"ІМТ = {bmi_value}")
-
+ 
 # Analysis of BMI# Random recommendations for underweight
 if (bmi_value < 18.5):
     recommendations_underweight = [
@@ -113,15 +125,15 @@ if (bmi_value < 18.5):
         "Ваш ІМТ є нижчим від норми. Рекомендуємо звернутися до спеціаліста для індивідуальної консультації."
     ]
     print(random.choice(recommendations_underweight))
-
-elif (bmi_value >= 18.5 and bmi_value < 25):            # Random recommendations for normal weight
+ 
+elif (bmi_value >= 18.5 and bmi_value < 25):            # Randomrecommendations for normal weight
     recommendations_normal = [
         "Вітаємо, у вас ІМТ в межах норми. Ми рекомендуємо обрати наш план тренувань «підтримка ваги».",
         "Ваш ІМТ в нормі. Рекомендуємо план «підтримка ваги» для підтримки вашого стану.",
         "Вітаємо, у вас нормальний ІМТ. Ми рекомендуємо план тренувань «підтримка ваги»."
     ]
     print(random.choice(recommendations_normal))
-
+ 
 elif (bmi_value >= 25 and bmi_value < 30):              # Recommendations for overweight
     recommendations_overweight = [
         "Ваш ІМТ є завищеним, рекомендуємо план тренувань «зниження ваги».",
@@ -129,7 +141,7 @@ elif (bmi_value >= 25 and bmi_value < 30):              # Recommendations for ov
         "Ваш ІМТ є трохи завищеним. Рекомендуємо вам план тренувань «зниження ваги»."
     ]
     print(random.choice(recommendations_overweight))
-
+ 
 else:
     recommendations_obesity = [
         "Ваш ІМТ свідчить про ожиріння. Рекомендуємо звернутись до спеціаліста.",
@@ -137,96 +149,204 @@ else:
         "Ваш ІМТ свідчить про ожиріння. Рекомендуємо консультацію з дієтологом."
     ]
     print(random.choice(recommendations_obesity))
-
-
+ 
 if (bmi_value < 18.5):            # we offer the user to choose a training set for: dropping, maintaining or gaining weight
     set = choice_set(bmi_value)
-
+ 
 elif (bmi_value >= 18.5 and bmi_value < 25):
     print("За результатами ІМТ ми пропонуємо сет тренувань для «зниження ваги» «підтримки ваги» «набору ваги»")
     set = choice_set(bmi_value)
-
+ 
 elif (bmi_value >= 25 and bmi_value < 30):
     print("За результатами ІМТ ми пропонуємо сет тренувань для «зниження ваги» або «підтримки ваги» ")
     set = choice_set(bmi_value)
 else:
     # we don’t take responsibility for obese people
-    print("За результатами ІМТ нажаль ми неможемо запропонувати вам сет тренувань...")
+    print("За результатами ІМТ нажаль ми неможемозапропонувати вам сет тренувань...")
     input("\n\nЩоб завершити натисніть Enter.\n")
     raise SystemExit  # exit the program
-
+ 
 print(f"\nОбрано сет тренувань для {switch_case_set(set)}\n")
-
+ 
 # user chooses the number of training sessions per week
 frequency = choice_frequency()
-
-print(f"\nКористувач обрав {int(frequency)} тренування на тиждень\n")
-
-if (bmi_value < 18.5):
-    print("Сети тренувань для набору ваги:\n")
-
-    print("Cет №1\nВипади в сторону 10 разів\nПідняття ніг 10 разів на кожну ногу\nПрисідання біля стіни 10 разів\nБіг на місці 2 хвилини\nЯгодичний міст 10 разів\nСупермен 30 секунд\nВелосипед 30 секунд\n")
-
-    print("\nCет №2\nСтрибки з розведенням рук і ніг — 10 разів\nБіг на місці — 2 хвилини\nПрисідання біля стіни 10 разів\nПідняття ніг — 10 разів на кожну ногу\nСупермен 30 секунд\nВелосипед 30 секунд\n")
-
-    print("\nCет №3\nБіг на місці — 2 хвилини\nБербі — 7 разів\nПрисідання біля стіни 10 разів\nАльпініст — 20 секунд\nЯгодичний міст — 15 разів\nВипади в сторону — 10 разів\nПланка — 20 секунд\n")
+ 
 
 
-elif (bmi_value >= 18.5 and bmi_value < 25):
-    if (set == 1):
-        print("Сети тренувань для зниження ваги:\n")
-
-        print("Cет №1\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 15 разів\nВипади — 30 разів\nПрисідання — 30 разів\nВипади в сторону — 30 разів\nСкручування — 30 разів\nВелосипед — 2 хвилини\nПланка з ліктів — 30 секунд\nВіджимання — 15 разів\nЯгодичний міст — 30 разів\nСупермен— 1 хвилина\nПідняття ніг з ліктевої планки — 1 хвилина\nВіджимання з планки — 1 хвилина\n")
-
-        print("\nCет №2\nБіг на місці — 5 хвилин\nБерпі — 10 разів\nПрисідання — 30 разів\nВипади — 30 разів\nВипади в сторону — 30 разів\nВелосипед — 2 хвилини\nПланка — 30 секунд\nЯгодичний міст — 30 разів\nСупермен — 1 хвилина\nСкручування — 30 разів\n")
-
-        print("\nCет №3\nБіг на місці — 5 хвилин\nАльпініст — 30 секунд\nПідняття ніг — 30 разів на кожну ногу\nСкручування — 30 разів\nПрисідання — 20 разів\nВипади в сторону — 20 разів\nПланка — 45 секунд\nЯгодичний міст — 25 разів\nСупермен — 1 хвилина\nВелосипед — 2 хвилини\n")
-
-    elif (set == 2):
-        print("Сети тренувань для підтримки ваги:\n")
-
-        print("Cет №1\nБіг на місці — 5 хвилин\nПрисідання — 20 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nСкручування — 20 раз\nВелосипед — 1 хвилина\nВіджимання — 10 раз\nПланка з ліктів — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n")
-
-        print("\nCет №2\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 10 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nПланка — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n")
-
-        print("\nCет №3\nБіг на місці — 5 хвилин\nБерпі — 10 раз\nПрисідання — 30 раз\nАльпініст — 1 хвилина\nВіджимання — 10 раз\nСкручування — 20 раз\nВіджимання з планки — 30 секунд\nПідняття ніг з ліктевої планки — 30 секунд\nСупермен — 1 хвилина\n")
-
-    else:
+def training_sets(bmi_value, frequency):
+    if bmi_value < 18.5:
         print("Сети тренувань для набору ваги:\n")
-
-        print("Cет №1\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 15 разів\nВипади — 30 разів\nПрисідання — 30 разів\nВипади в сторону — 30 разів\nСкручування — 30 разів\nВелосипед — 2 хвилини\nПланка з ліктів — 30 секунд\nВіджимання — 15 разів\nЯгодичний міст — 30 разів\nСупермен— 1 хвилина\nПідняття ніг з ліктевої планки — 1 хвилина\nВіджимання з планки — 1 хвилина\n")
-
-        print("\nCет №2\nБіг на місці — 5 хвилин\nБерпі — 10 разів\nПрисідання — 30 разів\nВипади — 30 разів\nВипади в сторону — 30 разів\nВелосипед — 2 хвилини\nПланка — 30 секунд\nЯгодичний міст — 30 разів\nСупермен — 1 хвилина\nСкручування — 30 разів\n")
-
-        print("\nCет №3\nБіг на місці — 5 хвилин\nАльпініст — 30 секунд\nПідняття ніг — 30 разів на кожну ногу\nСкручування — 30 разів\nПрисідання — 20 разів\nВипади в сторону — 20 разів\nПланка — 45 секунд\nЯгодичний міст — 25 разів\nСупермен — 1 хвилина\nВелосипед — 2 хвилини\n")
-
-else:
-    if (set == 1):
-        print("Сети тренувань для зниження ваги:\n")
-
-        print("Cет №1\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 20 раз\nСкручування — 35 раз\nnБербі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nАльпініст — 30 секунд\nЯгодичний міст — 35 раз\nПідняття ніг з ліктевої планки — 1 хвилина\nПланка з ліктів — 1 хвилина\nВелосипед — 2 хвилин\nВіджимання з планки — 1 хвилина\n")
-
-        print("\nCет №2\nБіг на місці — 5 хвилин\nБербі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nСупермен — 2 хвилини\nЯгодичний міст — 35 раз\nАльпініст — 30 секунд\nВелосипед — 2 хвилини\nВіджимання — 15 раз\nСкручування — 35 раз\n")
-
-        print("\nCет №3\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 15 раз\nПрисідання біля стіни — 15 раз\nВипади в сторону — 20 раз\nСкручування — 35 раз\nПланка — 45 секунд\nПідняття ніг — 30 раз на кожну ногу\nЯгодичний міст — 30 раз\n")
-
-    elif (set == 2):
+        sets = [
+            "Cет №1\nВипади в сторону 10 разів\nПідняття ніг 10 разів на кожну ногу\nПрисідання біля стіни 10 разів\nБіг на місці 2 хвилини\nЯгодичний міст 10 разів\nСупермен 30 секунд\nВелосипед 30 секунд\n",
+            "Cет №2\nСтрибки з розведенням рук і ніг — 10 разів\nБіг на місці — 2 хвилини\nПрисідання біля стіни 10 разів\nПідняття ніг — 10 разів на кожну ногу\nСупермен 30 секунд\nВелосипед 30 секунд\n",
+            "Cет №3\nБіг на місці — 2 хвилини\nБерпі — 7 разів\nПрисідання біля стіни 10 разів\nАльпініст — 20 секунд\nЯгодичний міст — 15 разів\nВипади в сторону — 10 разів\nПланка — 20 секунд\n"
+        ]
+    
+    elif 18.5 <= bmi_value < 25:
         print("Сети тренувань для підтримки ваги:\n")
+        sets = [
+            "Cет №1\nБіг на місці — 5 хвилин\nПрисідання — 20 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nСкручування — 20 раз\nВелосипед — 1 хвилина\nВіджимання — 10 раз\nПланка з ліктів — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n",
+            "Cет №2\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 10 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nПланка — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n",
+            "Cет №3\nБіг на місці — 5 хвилин\nБерпі — 10 раз\nПрисідання — 30 раз\nАльпініст — 1 хвилина\nВіджимання — 10 раз\nСкручування — 20 раз\nВіджимання з планки — 30 секунд\nПідняття ніг з ліктевої планки — 30 секунд\nСупермен — 1 хвилина\n"
+        ]
+    
+    else:
+        print("Сети тренувань для зниження ваги:\n")
+        sets = [
+            "Cет №1\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 20 раз\nСкручування — 35 раз\nБерпі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nАльпініст — 30 секунд\nЯгодичний міст — 35 раз\nПідняття ніг з ліктевої планки — 1 хвилина\nПланка з ліктів — 1 хвилина\nВелосипед — 2 хвилин\nВіджимання з планки — 1 хвилина\n",
+            "Cет №2\nБіг на місці — 5 хвилин\nБерпі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nСупермен — 2 хвилини\nЯгодичний міст — 35 раз\nАльпініст — 30 секунд\nВелосипед — 2 хвилини\nВіджимання — 15 раз\nСкручування — 35 раз\n",
+            "Cет №3\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 15 раз\nПрисідання біля стіни — 15 раз\nВипади в сторону — 20 раз\nСкручування — 35 раз\nПланка — 45 секунд\nПідняття ніг — 30 раз на кожну ногу\nЯгодичний міст — 30 раз\n"
+        ]
 
-        print("Cет №1\nБіг на місці — 5 хвилин\nПрисідання — 20 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nСкручування — 20 раз\nВелосипед — 1 хвилина\nВіджимання — 10 раз\nПланка з ліктів — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n")
+    # Select training sets based on frequency
+    if frequency == 1:
+        selected_sets = [random.choice(sets)]  # One random set
+    elif frequency == 2:
+        selected_sets = random.sample(sets, 2)  # Two unique sets
+    else:
+        selected_sets = sets  # All three sets
 
-        print("\nCет №2\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 10 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nПланка — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n")
+    # Display the selected sets
+    for set_number, training_set in enumerate(selected_sets, 1):
+        print(f"День {set_number}:\n{training_set}")
 
-        print("\nCет №3\nБіг на місці — 5 хвилин\nБерпі — 10 раз\nПрисідання — 30 раз\nАльпініст — 1 хвилина\nВіджимання — 10 раз\nСкручування — 20 раз\nВіджимання з планки — 30 секунд\nПідняття ніг з ліктевої планки — 30 секунд\nСупермен — 1 хвилина\n")
+# Example function call
+
+training_sets(bmi_value, frequency)
+def select_days(frequency):  # Choosing days for training based onfrequency
+    days_of_week = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"]
+    selected_days = []
+    
+    print(f"\nОберіть {int(frequency)} день(дні) для тренувань із наступних варіантів:")
+    
+    for idx, day in enumerate(days_of_week, start=1):
+        print(f"{idx}. {day}")
+ 
+    while len(selected_days) < frequency:
+        try:
+            choice = int(input(f"\nОберіть цифру дня який потрібен №{len(selected_days) + 1}: "))
+            if 1 <= choice <= 7:
+                selected_day = days_of_week[choice - 1]
+                if selected_day not in selected_days:
+                    selected_days.append(selected_day)
+                else:
+                    print("Цей день уже обрано. Оберіть інший.")
+            else:
+                raise ValueError
+        except ValueError:
+            print("Введено неправильний номер дня. Спробуйте ще раз.")
+ 
+    print(f"\nВи обрали наступні дні для тренувань: {', '.join(selected_days)}")
+    return selected_days
+ 
+# Основна програма
+selected_days = select_days(frequency)   # Вибір днів тренувань
+ 
+def set_reminder(selected_days):  # Встановлення нагадувань для обраних днів
+    reminders = []  # Список для нагадувань
+    for day in selected_days:
+        while True:
+            try:
+                reminder_time = input(f"Введіть час для нагадування на {day} у форматі ЧЧ:ММ (24-годинний формат): ")
+                reminder_hour, reminder_minute = map(int, reminder_time.split(":"))
+                
+                # Перевірка на коректність введених значень
+                if 0 <= reminder_hour < 24 and 0 <= reminder_minute< 60:
+                    current_time = datetime.now()
+                    current_day_index = current_time.weekday()
+                    target_day_index = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"].index(day)
+ 
+                    # Розрахунок, на скільки днів вперед потрібно встановити нагадування
+                    days_ahead = (target_day_index - current_day_index+ 7) % 7
+                    reminder_day = current_time + timedelta(days=days_ahead)
+                    
+                    # Встановлення часу нагадування
+                    reminder = reminder_day.replace(hour=reminder_hour, minute=reminder_minute, second=0, microsecond=0)
+                    reminders.append((day, reminder))  # Додаємо день і час
+                    print(f"Нагадування встановлено на {day} о {reminder.strftime('%H:%M')}")
+                    break  # Вихід з циклу, якщо час введено правильно
+                else:
+                    print("Введено неправильний час. Спробуйте ще раз.")
+            except ValueError:
+                print("Введено неправильний формат. Спробуйте ще раз.")
+    return reminders
+ 
+def edit_reminders(reminders):
+    while True:
+        print("\nВаші нагадування:")
+        for index, (day, reminder) in enumerate(reminders):
+            print(f"{index + 1}. {day} о {reminder.strftime('%H:%M')}")
+        
+        print("\nВиберіть дію:")
+        print("1. Видалити нагадування")
+        print("2. Редагувати нагадування")
+        print("3. Вийти")
+        
+        choice = input("Ваш вибір (1/2/3): ").lower()
+        
+        if choice == '3':
+            check_for_help()
+            exit()
+    
+        elif choice == '1':
+            try:
+                reminder_to_delete = int(input("Введіть номер нагадування, яке потрібно видалити: ")) - 1
+                if 0 <= reminder_to_delete < len(reminders):
+                    reminders.pop(reminder_to_delete)
+                    print("Нагадування видалено.")
+                else:
+                    print("Неправильний номер нагадування.")
+            except ValueError:
+                print("Введіть коректний номер.")
+        elif choice == '2':
+            try:
+                reminder_to_edit = int(input("Введіть номер нагадування для редагування: ")) - 1
+                if 0 <= reminder_to_edit < len(reminders):
+                    new_time = input(f"Введіть новий час для нагадування на {reminders[reminder_to_edit][0]} у форматі ЧЧ:ММ (24-годинний формат): ")
+                    new_hour, new_minute = map(int, new_time.split(":"))
+                    
+                    if 0 <= new_hour < 24 and 0 <= new_minute < 60:
+                        current_time = datetime.now()
+                        target_day = reminders[reminder_to_edit][0]
+                        current_day_index = current_time.weekday()
+                        target_day_index = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"].index(target_day)
+ 
+                        # Розрахунок, на скільки днів вперед потрібно встановити нагадування
+                        days_ahead = (target_day_index - current_day_index + 7) % 7
+                        reminder_day = current_time + timedelta(days=days_ahead)
+                        new_reminder = reminder_day.replace(hour=new_hour, minute=new_minute, second=0, microsecond=0)
+                        
+                        reminders[reminder_to_edit] = (target_day, new_reminder)  # Оновлення нагадування
+                        print(f"Нагадування на {target_day} оновлено на {new_reminder.strftime('%H:%M')}.")
+                    else:
+                        print("Введено неправильний час.")
+                else:
+                    print("Неправильний номер нагадування.")
+            except ValueError:
+                print("Введіть коректний номер.")
+ 
+def remind_training(reminders):
+    print("Час для тренувань збережено!")
+    while True:
+        current_time = datetime.now()
+        for day, reminder in reminders[:]:  # Проходимо по копії списку, щоб безпечно видаляти елементи
+            if current_time >= reminder:
+                print(f"\nНастав час для тренування! Починайте свій сет вправ на {day} о {reminder.strftime('%H:%M')}!")
+                reminders.remove((day, reminder))  # Видаляємо нагадування, коли воно вже виконане
+        time.sleep(60)  # Перевірка кожну хвилину
+ 
+# Встановлюємо нагадування на вибрані дні
+set_reminder_time = input("Бажаєте встановити нагадування на певний час? (так/ні): ").lower()
+if set_reminder_time == "так":
+    reminders = set_reminder(selected_days)
+    edit_reminders(reminders)  # Додано для редагування нагадувань
+    remind_training(reminders)
+else:
+    print("Нагадування не встановлено.")
+    check_for_help()
+    exit()
+ 
 
 
-if check_for_help():
-    print("""
-    Довідник:
-    1. Рекомендовані інтервали між вправами 20~30 секунд.
-    2. Підтримуйте баланс води в організмі протягом дня.
-    3. Дотримуйтесь частоти тренувань 1, 2 або 3 рази на тиждень.
-    4. Утримуйтесь від суворих дієт.
-    Пам'ятайте,що головне почати:зробити перший,маленький крок назустріч здоровому тілу і щасливому життю!
-    """)
+ 
 
