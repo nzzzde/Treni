@@ -85,15 +85,144 @@ def choice_frequency():  # choosing the frequency of training perweek
         except ValueError:
             print("Ви ввели не коректну команду...\nСпробуйте ще раз.\n")
 
-def select_training_sets(frequency):  # вибір тренувань в залежності від частоти
+def select_training_sets(frequency):  #  selection of training depending on the frequency
     if frequency == 1:
-        return [random.choice(training_sets)]  # Один випадковий сет
+        return [random.choice(training_sets)]  # One random set
     elif frequency == 2:
-        return random.sample(training_sets, 2)  # Два унікальні сети без повторень
+        return random.sample(training_sets, 2)  # Two unique sets without repetitions
     elif frequency == 3:
-        return training_sets  # Всі три сети
+        return training_sets  # All three sets
+
+def training_sets(bmi_value, frequency):
+    if bmi_value < 18.5:
+        print("Сети тренувань для набору ваги:\n")
+        sets = [
+            "Cет №1\nВипади в сторону 10 разів\nПідняття ніг 10 разів на кожну ногу\nПрисідання біля стіни 10 разів\nБіг на місці 2 хвилини\nЯгодичний міст 10 разів\nСупермен 30 секунд\nВелосипед 30 секунд\n",
+            "Cет №2\nСтрибки з розведенням рук і ніг — 10 разів\nБіг на місці — 2 хвилини\nПрисідання біля стіни 10 разів\nПідняття ніг — 10 разів на кожну ногу\nСупермен 30 секунд\nВелосипед 30 секунд\n",
+            "Cет №3\nБіг на місці — 2 хвилини\nБерпі — 7 разів\nПрисідання біля стіни 10 разів\nАльпініст — 20 секунд\nЯгодичний міст — 15 разів\nВипади в сторону — 10 разів\nПланка — 20 секунд\n"
+        ]
+    
+    elif 18.5 <= bmi_value < 25:
+        if set == 1:
+            print("Сети тренувань для зниження ваги:\n")
+        elif set == 2:
+            print("Сети тренувань для підтримки ваги:\n")
+        elif set == 3:
+            print("Сети тренувань для набору ваги:\n")
+        sets = [
+            "Cет №1\nБіг на місці — 5 хвилин\nПрисідання — 20 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nСкручування — 20 раз\nВелосипед — 1 хвилина\nВіджимання — 10 раз\nПланка з ліктів — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n",
+            "Cет №2\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 10 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nПланка — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n",
+            "Cет №3\nБіг на місці — 5 хвилин\nБерпі — 10 раз\nПрисідання — 30 раз\nАльпініст — 1 хвилина\nВіджимання — 10 раз\nСкручування — 20 раз\nВіджимання з планки — 30 секунд\nПідняття ніг з ліктевої планки — 30 секунд\nСупермен — 1 хвилина\n"
+        ]
+    
+    else:
+        if set == 1:
+            print("Сети тренувань для зниження ваги:\n")
+        elif set == 2:
+            print("Сети тренувань для підтримки ваги:\n")
+        sets = [
+            "Cет №1\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 20 раз\nСкручування — 35 раз\nБерпі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nАльпініст — 30 секунд\nЯгодичний міст — 35 раз\nПідняття ніг з ліктевої планки — 1 хвилина\nПланка з ліктів — 1 хвилина\nВелосипед — 2 хвилин\nВіджимання з планки — 1 хвилина\n",
+            "Cет №2\nБіг на місці — 5 хвилин\nБерпі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nСупермен — 2 хвилини\nЯгодичний міст — 35 раз\nАльпініст — 30 секунд\nВелосипед — 2 хвилини\nВіджимання — 15 раз\nСкручування — 35 раз\n",
+            "Cет №3\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 15 раз\nПрисідання біля стіни — 15 раз\nВипади в сторону — 20 раз\nСкручування — 35 раз\nПланка — 45 секунд\nПідняття ніг — 30 раз на кожну ногу\nЯгодичний міст — 30 раз\n"
+        ]
+        # Select training sets based on frequency
+    if frequency == 1:
+        selected_sets = [random.choice(sets)]  # One random set
+    elif frequency == 2:
+        selected_sets = random.sample(sets, 2)  # Two unique sets
+    else:
+        selected_sets = sets  # All three sets
+
+    for set_number, training_set in enumerate(selected_sets, 1):
+        print(f"День {set_number}:\n{training_set}")
+
+def select_days(frequency):  # Choosing days for training based onfrequency
+    days_of_week = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"]
+    selected_days = []
+    
+    print(f"\nОберіть {int(frequency)} день(дні) для тренувань із наступних варіантів:")
+    
+    for idx, day in enumerate(days_of_week, start=1):
+        print(f"{idx}. {day}")
  
-def check_for_help():  # Choosing the frequency of training per week
+    while len(selected_days) < frequency:
+        try:
+            choice = int(input(f"\nОберіть цифру дня який потрібен №{len(selected_days) + 1}: "))
+            if 1 <= choice <= 7:
+                selected_day = days_of_week[choice - 1]
+                if selected_day not in selected_days:
+                    selected_days.append(selected_day)
+                else:
+                    print("Цей день уже обрано. Оберіть інший.")
+            else:
+                raise ValueError
+        except ValueError:
+            print("Введено неправильний номер дня. Спробуйте ще раз.")
+ 
+    print(f"\nВи обрали наступні дні для тренувань: {', '.join(selected_days)}")
+    return selected_days
+
+def Check_set_reminder_time():
+    while True:
+        try:
+            reminder = input("Бажаєте встановити нагадування на певний час? (так/ні): ").lower()
+                # Checking the correctness of variable
+            if (reminder == 'так' or reminder == 'ні'):
+                return reminder
+            else:
+                raise ValueError
+        except ValueError:
+                print("Ви ввели не коректну команду...\nСпробуйте ще раз.\n")    
+
+def set_reminder(selected_days):  
+    reminders = []
+    for day in selected_days:
+        while True:
+            try:
+                reminder_time = input(f"Введіть час для нагадування на {day} у форматі ЧЧ:ММ (24-годинний формат): ")
+                reminder_hour, reminder_minute = map(int, reminder_time.split(":"))
+                
+                if 0 <= reminder_hour < 24 and 0 <= reminder_minute < 60:
+                    
+                    current_time = datetime.now()
+                    current_day_index = current_time.weekday()
+                    
+                    target_day_index = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"].index(day)
+
+                    
+                    days_ahead = (target_day_index - current_day_index + 7) % 7
+                    reminder_day = current_time + timedelta(days=days_ahead)
+                    
+                    
+                    reminder = reminder_day.replace(hour=reminder_hour, minute=reminder_minute, second=0, microsecond=0)
+                    reminders.append((day, reminder))
+
+                    
+                    time_until_reminder = reminder - current_time
+                    hours, remainder = divmod(time_until_reminder.seconds, 3600)
+                    minutes = remainder // 60
+
+                    
+                    print(f"Нагадування встановлено на {day} о {reminder.strftime('%H:%M')} ({reminder.strftime('%Y-%m-%d')}).")
+                    print(f"Залишилося: {time_until_reminder.days} днів, {hours} годин, {minutes} хвилин.\n")
+                    break
+                else:
+                    print("Введено неправильний час. Спробуйте ще раз.")
+            except ValueError:
+                print("Введено неправильний формат. Спробуйте ще раз.")
+    return reminders
+
+def remind_training(reminders):
+    print("Час для тренувань збережено!")
+    while reminders:
+        current_time = datetime.now()
+        for day, reminder in reminders[:]:  
+            if current_time >= reminder:
+                print(f"\nНастав час для тренування! Починайте свій сет вправ на {day} о {reminder.strftime('%H:%M')}!")
+                reminders.remove((day, reminder))  
+        time.sleep(60) 
+
+def check_for_help(): 
     help_text = """
     Довідник:
     1. Рекомендовані інтервали між вправами 20~30 секунд.
@@ -102,13 +231,65 @@ def check_for_help():  # Choosing the frequency of training per week
     4. Утримуйтесь від суворих дієт.
     Пам'ятайте, що головне — почати: зробити перший маленький крок назустріч здоровому тілу і щасливому життю!
     """
-    
-    # Запит користувача
+    # User request
     key = input("Натисніть '0', якщо хочете переглянути довідник, або будь-яку іншу клавішу для виходу: ")
     
-    if key == '0':  # Якщо введено '0', виводимо довідник
+    if key == '0':  # If '0' is entered, we display the directory
         print(help_text)
         return True
+    
+def edit_reminders(reminders):
+    while True:
+        print("\nВаші нагадування:")
+        for index, (day, reminder) in enumerate(reminders):
+            print(f"{index + 1}. {day} о {reminder.strftime('%H:%M')}")
+
+        print("\nВиберіть дію:")
+        print("1. Видалити нагадування")
+        print("2. Редагувати нагадування")
+        print("Щоб вийти введіть будь що")
+
+        choice = input("Ваш вибір (1/2/...): ").lower()       
+            
+        if choice == '1':
+            try:
+                reminder_to_delete = int(input("Введіть номер нагадування, яке потрібно видалити: ")) - 1
+                if 0 <= reminder_to_delete < len(reminders):
+                    removed_day, removed_time = reminders.pop(reminder_to_delete)
+                    print(f"Нагадування на {removed_day} о {removed_time.strftime('%H:%M')} видалено.")
+                else:
+                    print("Неправильний номер нагадування.")
+            except ValueError:
+                print("Введіть коректний номер.")
+        elif choice == '2':
+            try:
+                reminder_to_edit = int(input("Введіть номер нагадування для редагування: ")) - 1
+                if 0 <= reminder_to_edit < len(reminders):
+                    new_time = input(f"Введіть новий час для нагадування на {reminders[reminder_to_edit][0]} у форматі ЧЧ:ММ (24-годинний формат): ")
+                    new_hour, new_minute = map(int, new_time.split(":"))
+                    
+                    if 0 <= new_hour < 24 and 0 <= new_minute < 60:
+                        current_time = datetime.now()
+                        target_day = reminders[reminder_to_edit][0]
+                        current_day_index = current_time.weekday()
+                        target_day_index = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"].index(target_day)
+
+                        
+                        days_ahead = (target_day_index - current_day_index + 7) % 7
+                        reminder_day = current_time + timedelta(days=days_ahead)
+                        new_reminder = reminder_day.replace(hour=new_hour, minute=new_minute, second=0, microsecond=0)
+                        
+                        reminders[reminder_to_edit] = (target_day, new_reminder)
+                        print(f"Нагадування на {target_day} оновлено на {new_reminder.strftime('%H:%M')} ({new_reminder.strftime('%Y-%m-%d')}).")
+                    else:
+                        print("Введено неправильний час.")
+                else:
+                    print("Неправильний номер нагадування.")
+            except ValueError:
+                print("Введіть коректний номер.")
+        else:
+            check_for_help()
+            break
  
 weight = weight_in()
 height = height_in()
@@ -162,7 +343,7 @@ elif (bmi_value >= 25 and bmi_value < 30):
     set = choice_set(bmi_value)
 else:
     # we don’t take responsibility for obese people
-    print("За результатами ІМТ нажаль ми неможемозапропонувати вам сет тренувань...")
+    print("За результатами ІМТ нажаль ми не можемо запропонувати вам сет тренувань...")
     input("\n\nЩоб завершити натисніть Enter.\n")
     raise SystemExit  # exit the program
  
@@ -170,183 +351,18 @@ print(f"\nОбрано сет тренувань для {switch_case_set(set)}\n
  
 # user chooses the number of training sessions per week
 frequency = choice_frequency()
- 
-
-
-def training_sets(bmi_value, frequency):
-    if bmi_value < 18.5:
-        print("Сети тренувань для набору ваги:\n")
-        sets = [
-            "Cет №1\nВипади в сторону 10 разів\nПідняття ніг 10 разів на кожну ногу\nПрисідання біля стіни 10 разів\nБіг на місці 2 хвилини\nЯгодичний міст 10 разів\nСупермен 30 секунд\nВелосипед 30 секунд\n",
-            "Cет №2\nСтрибки з розведенням рук і ніг — 10 разів\nБіг на місці — 2 хвилини\nПрисідання біля стіни 10 разів\nПідняття ніг — 10 разів на кожну ногу\nСупермен 30 секунд\nВелосипед 30 секунд\n",
-            "Cет №3\nБіг на місці — 2 хвилини\nБерпі — 7 разів\nПрисідання біля стіни 10 разів\nАльпініст — 20 секунд\nЯгодичний міст — 15 разів\nВипади в сторону — 10 разів\nПланка — 20 секунд\n"
-        ]
-    
-    elif 18.5 <= bmi_value < 25:
-        print("Сети тренувань для підтримки ваги:\n")
-        sets = [
-            "Cет №1\nБіг на місці — 5 хвилин\nПрисідання — 20 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nСкручування — 20 раз\nВелосипед — 1 хвилина\nВіджимання — 10 раз\nПланка з ліктів — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n",
-            "Cет №2\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 10 раз\nЯгодичний міст — 20 раз\nПідняття ніг — 20 раз на кожну ногу\nСупермен — 1 хвилина\nПланка — 30 секунд\nВипади — 20 раз\nВипади в сторону — 20 раз\n",
-            "Cет №3\nБіг на місці — 5 хвилин\nБерпі — 10 раз\nПрисідання — 30 раз\nАльпініст — 1 хвилина\nВіджимання — 10 раз\nСкручування — 20 раз\nВіджимання з планки — 30 секунд\nПідняття ніг з ліктевої планки — 30 секунд\nСупермен — 1 хвилина\n"
-        ]
-    
-    else:
-        print("Сети тренувань для зниження ваги:\n")
-        sets = [
-            "Cет №1\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 20 раз\nСкручування — 35 раз\nБерпі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nАльпініст — 30 секунд\nЯгодичний міст — 35 раз\nПідняття ніг з ліктевої планки — 1 хвилина\nПланка з ліктів — 1 хвилина\nВелосипед — 2 хвилин\nВіджимання з планки — 1 хвилина\n",
-            "Cет №2\nБіг на місці — 5 хвилин\nБерпі — 15 раз\nВипади — 30 раз\nВипади в сторону — 30 раз\nСупермен — 2 хвилини\nЯгодичний міст — 35 раз\nАльпініст — 30 секунд\nВелосипед — 2 хвилини\nВіджимання — 15 раз\nСкручування — 35 раз\n",
-            "Cет №3\nБіг на місці — 5 хвилин\nСтрибки з розведенням рук і ніг — 15 раз\nПрисідання біля стіни — 15 раз\nВипади в сторону — 20 раз\nСкручування — 35 раз\nПланка — 45 секунд\nПідняття ніг — 30 раз на кожну ногу\nЯгодичний міст — 30 раз\n"
-        ]
-
-    # Select training sets based on frequency
-    if frequency == 1:
-        selected_sets = [random.choice(sets)]  # One random set
-    elif frequency == 2:
-        selected_sets = random.sample(sets, 2)  # Two unique sets
-    else:
-        selected_sets = sets  # All three sets
-
-    # Display the selected sets
-    for set_number, training_set in enumerate(selected_sets, 1):
-        print(f"День {set_number}:\n{training_set}")
-
-# Example function call
 
 training_sets(bmi_value, frequency)
-def select_days(frequency):  # Choosing days for training based onfrequency
-    days_of_week = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"]
-    selected_days = []
-    
-    print(f"\nОберіть {int(frequency)} день(дні) для тренувань із наступних варіантів:")
-    
-    for idx, day in enumerate(days_of_week, start=1):
-        print(f"{idx}. {day}")
  
-    while len(selected_days) < frequency:
-        try:
-            choice = int(input(f"\nОберіть цифру дня який потрібен №{len(selected_days) + 1}: "))
-            if 1 <= choice <= 7:
-                selected_day = days_of_week[choice - 1]
-                if selected_day not in selected_days:
-                    selected_days.append(selected_day)
-                else:
-                    print("Цей день уже обрано. Оберіть інший.")
-            else:
-                raise ValueError
-        except ValueError:
-            print("Введено неправильний номер дня. Спробуйте ще раз.")
- 
-    print(f"\nВи обрали наступні дні для тренувань: {', '.join(selected_days)}")
-    return selected_days
- 
-# Основна програма
-selected_days = select_days(frequency)   # Вибір днів тренувань
- 
-def set_reminder(selected_days):  # Встановлення нагадувань для обраних днів
-    reminders = []  # Список для нагадувань
-    for day in selected_days:
-        while True:
-            try:
-                reminder_time = input(f"Введіть час для нагадування на {day} у форматі ЧЧ:ММ (24-годинний формат): ")
-                reminder_hour, reminder_minute = map(int, reminder_time.split(":"))
-                
-                # Перевірка на коректність введених значень
-                if 0 <= reminder_hour < 24 and 0 <= reminder_minute< 60:
-                    current_time = datetime.now()
-                    current_day_index = current_time.weekday()
-                    target_day_index = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"].index(day)
- 
-                    # Розрахунок, на скільки днів вперед потрібно встановити нагадування
-                    days_ahead = (target_day_index - current_day_index+ 7) % 7
-                    reminder_day = current_time + timedelta(days=days_ahead)
-                    
-                    # Встановлення часу нагадування
-                    reminder = reminder_day.replace(hour=reminder_hour, minute=reminder_minute, second=0, microsecond=0)
-                    reminders.append((day, reminder))  # Додаємо день і час
-                    print(f"Нагадування встановлено на {day} о {reminder.strftime('%H:%M')}")
-                    break  # Вихід з циклу, якщо час введено правильно
-                else:
-                    print("Введено неправильний час. Спробуйте ще раз.")
-            except ValueError:
-                print("Введено неправильний формат. Спробуйте ще раз.")
-    return reminders
- 
-def edit_reminders(reminders):
-    while True:
-        print("\nВаші нагадування:")
-        for index, (day, reminder) in enumerate(reminders):
-            print(f"{index + 1}. {day} о {reminder.strftime('%H:%M')}")
-        
-        print("\nВиберіть дію:")
-        print("1. Видалити нагадування")
-        print("2. Редагувати нагадування")
-        print("3. Вийти")
-        
-        choice = input("Ваш вибір (1/2/3): ").lower()
-        
-        if choice == '3':
-            check_for_help()
-            exit()
-    
-        elif choice == '1':
-            try:
-                reminder_to_delete = int(input("Введіть номер нагадування, яке потрібно видалити: ")) - 1
-                if 0 <= reminder_to_delete < len(reminders):
-                    reminders.pop(reminder_to_delete)
-                    print("Нагадування видалено.")
-                else:
-                    print("Неправильний номер нагадування.")
-            except ValueError:
-                print("Введіть коректний номер.")
-        elif choice == '2':
-            try:
-                reminder_to_edit = int(input("Введіть номер нагадування для редагування: ")) - 1
-                if 0 <= reminder_to_edit < len(reminders):
-                    new_time = input(f"Введіть новий час для нагадування на {reminders[reminder_to_edit][0]} у форматі ЧЧ:ММ (24-годинний формат): ")
-                    new_hour, new_minute = map(int, new_time.split(":"))
-                    
-                    if 0 <= new_hour < 24 and 0 <= new_minute < 60:
-                        current_time = datetime.now()
-                        target_day = reminders[reminder_to_edit][0]
-                        current_day_index = current_time.weekday()
-                        target_day_index = ["понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя"].index(target_day)
- 
-                        # Розрахунок, на скільки днів вперед потрібно встановити нагадування
-                        days_ahead = (target_day_index - current_day_index + 7) % 7
-                        reminder_day = current_time + timedelta(days=days_ahead)
-                        new_reminder = reminder_day.replace(hour=new_hour, minute=new_minute, second=0, microsecond=0)
-                        
-                        reminders[reminder_to_edit] = (target_day, new_reminder)  # Оновлення нагадування
-                        print(f"Нагадування на {target_day} оновлено на {new_reminder.strftime('%H:%M')}.")
-                    else:
-                        print("Введено неправильний час.")
-                else:
-                    print("Неправильний номер нагадування.")
-            except ValueError:
-                print("Введіть коректний номер.")
- 
-def remind_training(reminders):
-    print("Час для тренувань збережено!")
-    while True:
-        current_time = datetime.now()
-        for day, reminder in reminders[:]:  # Проходимо по копії списку, щоб безпечно видаляти елементи
-            if current_time >= reminder:
-                print(f"\nНастав час для тренування! Починайте свій сет вправ на {day} о {reminder.strftime('%H:%M')}!")
-                reminders.remove((day, reminder))  # Видаляємо нагадування, коли воно вже виконане
-        time.sleep(60)  # Перевірка кожну хвилину
- 
-# Встановлюємо нагадування на вибрані дні
-set_reminder_time = input("Бажаєте встановити нагадування на певний час? (так/ні): ").lower()
+selected_days = select_days(frequency)   # Choice of training days
+
+set_reminder_time = Check_set_reminder_time()
 if set_reminder_time == "так":
     reminders = set_reminder(selected_days)
-    edit_reminders(reminders)  # Додано для редагування нагадувань
-    remind_training(reminders)
+    edit_reminders(reminders)  
+    remind_training(reminders)  
 else:
     print("Нагадування не встановлено.")
     check_for_help()
     exit()
  
-
-
- 
-
