@@ -13,7 +13,7 @@ class BmiStorage(BmiStorageInterface):
     def __init__(self):
         self.db_pool = DatabasePool()
 
-    def save_bmi_record(self, user_id: int, bmi: BMIModel) -> bool:
+    def save_bmi_record(self, user_id: int, bmi: BMIModel, bmi_value) -> bool:
         conn = self.db_pool.get_connection()
         query = sql.SQL(
             """
@@ -26,7 +26,7 @@ class BmiStorage(BmiStorageInterface):
             with conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        query, (user_id, bmi.weight, bmi.height, bmi.calculated_bmi)
+                        query, (user_id, bmi.weight, bmi.height, bmi_value)
                     )
             logger.info("Successfully saved BMI record for user %s", user_id)
             return True
