@@ -19,10 +19,10 @@ def create_keyboard(user_id: int, lang="uk"):
 
     btn_bmi = KeyboardButton(btn_bmi_text)
     btn_donate = KeyboardButton(get_translation("donate_button", lang, "Donate 💖"))
-    btn_guide = KeyboardButton(get_translation("guide_button", lang, "Guide 📚"))
+    reference_btn = KeyboardButton(get_translation("reference_button", lang, "Reference 📚"))
     btn_info = KeyboardButton(get_translation("info_button", lang, "Info ℹ️"))
 
-    keyboard.add(btn_bmi, btn_donate, btn_guide, btn_info)
+    keyboard.add(btn_bmi, btn_donate, reference_btn, btn_info)
     return keyboard
 
 

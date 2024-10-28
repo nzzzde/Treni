@@ -9,6 +9,7 @@ logger = setup_logger(__name__, log_file="user_storage.log")
 
 class UserStorage(UserStorageInterface):
     TABLE_USERS = "users"
+    TABLE_BMI_RECORDS = "bmi_records"
 
     def __init__(self):
         self.conn = psycopg2.connect(
@@ -58,13 +59,39 @@ class UserStorage(UserStorageInterface):
             logger.error("Error checking if user exists %s: %s", user_id, e)
             return False
 
+    def get_user_bmi_value(self, user_id: str):
+        query = sql.SQL(
+            """
+            SELECT bmi_value FROM {table} WHERE user_id = %s
+            """
+        ).format(table=sql.Identifier(self.TABLE_BMI_RECORDS))
+
+        try:
+            with self.conn:
+                with self.conn.cursor() as cursor:
+                    cursor.execute(query, (user_id,))
+                    bmi_value = cursor.fetchone()
+                    if bmi_value:
+                        if bmi_value < 18.5:
+                            return "underweight"
+                        elif 18.5 <= bmi_value <= 24.9:
+                            return "normal"
+                        elif 25 <= bmi_value <= 29.9:
+                            return "overweight"
+                        else:
+                            return "obesity"
+                    logger.warning("User %s not found.", user_id)
+                    return None
+        except Exception as e:
+            logger.error("Error fetching user %s: %s", user_id, e)
+            return None
+
     def get_user(self, user_id: str):
         query = sql.SQL(
             """
             SELECT user_id, phone_number, language FROM {table} WHERE user_id = %s
             """
         ).format(table=sql.Identifier(self.TABLE_USERS))
-
         try:
             with self.conn:
                 with self.conn.cursor() as cursor:
@@ -83,12 +110,14 @@ class UserStorage(UserStorageInterface):
             logger.error("Error fetching user %s: %s", user_id, e)
             return None
 
+
     def get_language(self, user_id: str) -> str:
         user = self.get_user(user_id)
         if user:
             return user["language"]
         logger.warning("Language not found for user %s.", user_id)
         return None
+
 
     def close(self) -> None:
         if self.conn:

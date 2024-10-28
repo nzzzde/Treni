@@ -6,7 +6,7 @@ from telebot.types import (
 )
 from storage.user import UserStorage
 from translations.translations import translations
-from telegram.menu import send_menu
+from handlers.menu import send_menu
 from logger.logger import setup_logger
 
 logger = setup_logger(__name__, log_file="bot.log")
@@ -56,6 +56,7 @@ def _welcome_back(bot, user_id: int, lang: str) -> None:
 def _ask_language_selection(bot, chat_id: int) -> None:
     logger.debug("Asking user %s for language selection.", chat_id)
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+
     keyboard.add(KeyboardButton("🇺🇦 Українська"), KeyboardButton("🇬🇧 English"))
 
     bot.send_message(
