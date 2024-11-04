@@ -3,7 +3,7 @@ import signal
 import sys
 from dotenv import load_dotenv
 import telebot
-from telegram.handler import register_handlers
+from handlers.handler import register_handlers
 from logger.logger import setup_logger
 
 logger = setup_logger(__name__)
