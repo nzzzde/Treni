@@ -110,7 +110,6 @@ class UserStorage(UserStorageInterface):
             logger.error("Error fetching user %s: %s", user_id, e)
             return None
 
-
     def get_language(self, user_id: str) -> str:
         user = self.get_user(user_id)
         if user:
@@ -118,6 +117,34 @@ class UserStorage(UserStorageInterface):
         logger.warning("Language not found for user %s.", user_id)
         return None
 
+    def change_language(self, user_id: str, lang: str) -> bool:
+        query = sql.SQL(
+            """
+            UPDATE {table}
+            SET language = %s
+            WHERE user_id = %s
+            """
+        ).format(table=sql.Identifier(self.TABLE_USERS))
+
+        try:
+            with self.conn:
+                with self.conn.cursor() as cursor:
+                    cursor.execute(query, (lang, user_id))
+                    if cursor.rowcount > 0:
+                        logger.info(
+                            "Successfully changed language for user %s to %s",
+                            user_id,
+                            lang,
+                        )
+                        return True
+                    else:
+                        logger.warning(
+                            "User %s not found, language change failed.", user_id
+                        )
+                        return False
+        except Exception as e:
+            logger.error("Error changing language for user %s: %s", user_id, e)
+            return False
 
     def close(self) -> None:
         if self.conn:

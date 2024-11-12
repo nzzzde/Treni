@@ -8,6 +8,7 @@ from logger.logger import setup_logger
 
 logger = setup_logger(__name__, log_file="bmi_handler.log")
 
+
 def process_bmi_command(message: types.Message, bot, storage, lang: str) -> None:
     logger.info(
         "Received BMI command from user %s with message: %s",
@@ -57,7 +58,7 @@ def process_bmi_command(message: types.Message, bot, storage, lang: str) -> None
     except ValueError as ve:
         logger.warning("ValueError processing BMI for user %s: %s", user_id, ve)
         bot.send_message(message.chat.id, translations["invalid_bmi_input"][lang])
-        send_menu(bot, message.chat.id, translations["menu_prompt"][lang], user_lang)
+        send_menu(bot, message.chat.id, translations["menu_prompt"][lang], lang)
     except RuntimeError as re:
         logger.error("RuntimeError processing BMI for user %s: %s", user_id, re)
         _handle_runtime_error(re, message, bot, lang)
@@ -88,14 +89,22 @@ def _update_or_create_bmi(
     if storage.bmi_exists(user_id):
         logger.info("Updating existing BMI record for user %s", user_id)
         storage.update_bmi_record(user_id, weight, height, bmi_model.calculate_bmi())
-        return bmi_model.calculate_bmi(), bmi_model.get_recommendation(), bmi_model.get_category()
+        return (
+            bmi_model.calculate_bmi(),
+            bmi_model.get_recommendation(),
+            bmi_model.get_category(),
+        )
 
     logger.info("Creating new BMI record for user %s", user_id)
     if not storage.save_bmi_record(user_id, bmi_model, bmi_model.calculate_bmi()):
         logger.error("Failed to save BMI record for user %s", user_id)
         raise RuntimeError("Failed to save BMI record")
 
-    return bmi_model.calculate_bmi(), bmi_model.get_recommendation(), bmi_model.get_category()
+    return (
+        bmi_model.calculate_bmi(),
+        bmi_model.get_recommendation(),
+        bmi_model.get_category(),
+    )
 
 
 def _send_usage_message(chat_id: int, bot, lang: str = "uk") -> None:
@@ -104,7 +113,9 @@ def _send_usage_message(chat_id: int, bot, lang: str = "uk") -> None:
     send_menu(bot, chat_id, translations["menu_prompt"][lang], lang)
 
 
-def _extract_weight_height(message: types.Message) -> Tuple[Optional[float], Optional[float]]:
+def _extract_weight_height(
+    message: types.Message,
+) -> Tuple[Optional[float], Optional[float]]:
     logger.info("Extracting weight and height from message %s", message.text)
     if not message.text:
         logger.warning("Message from user %s has no text", message.from_user.id)
@@ -122,28 +133,44 @@ def _extract_weight_height(message: types.Message) -> Tuple[Optional[float], Opt
         )
         return None, None
 
+
 def _send_training_options(bot, chat_id: int, lang: str, category: str) -> None:
-    logger.info("Sending training options to user %s based on category %s", chat_id, category)
+    logger.info(
+        "Sending training options to user %s based on category %s", chat_id, category
+    )
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
 
     if category == "underweight":
-        keyboard.add(types.InlineKeyboardButton(text=translations["weight_gain"][lang], callback_data="weight_gain"))
+        keyboard.add(
+            types.InlineKeyboardButton(
+                text=translations["weight_gain"][lang], callback_data="weight_gain"
+            )
+        )
     elif category == "normal":
         keyboard.add(
-            types.InlineKeyboardButton(text=translations["weight_gain"][lang], callback_data="weight_gain"),
-            types.InlineKeyboardButton(text=translations["maintenance"][lang], callback_data="maintenance"),
-            types.InlineKeyboardButton(text=translations["weight_loss"][lang], callback_data="weight_loss"),
+            types.InlineKeyboardButton(
+                text=translations["weight_gain"][lang], callback_data="weight_gain"
+            ),
+            types.InlineKeyboardButton(
+                text=translations["maintenance"][lang], callback_data="maintenance"
+            ),
+            types.InlineKeyboardButton(
+                text=translations["weight_loss"][lang], callback_data="weight_loss"
+            ),
         )
     elif category == "overweight":
         keyboard.add(
-            types.InlineKeyboardButton(text=translations["support"][lang], callback_data="support"),
-            types.InlineKeyboardButton(text=translations["weight_loss"][lang], callback_data="weight_loss"),
+            types.InlineKeyboardButton(
+                text=translations["support"][lang], callback_data="support"
+            ),
+            types.InlineKeyboardButton(
+                text=translations["weight_loss"][lang], callback_data="weight_loss"
+            ),
         )
     elif category == "obesity":
         bot.send_message(chat_id, translations["consultation_nutritionist"][lang])
         return
-
 
     bot.send_message(
         chat_id,
@@ -152,7 +179,9 @@ def _send_training_options(bot, chat_id: int, lang: str, category: str) -> None:
     )
 
 
-def _handle_runtime_error(re: RuntimeError, message: types.Message, bot, lang: str) -> None:
+def _handle_runtime_error(
+    re: RuntimeError, message: types.Message, bot, lang: str
+) -> None:
     logger.info("Handling RuntimeError for user %s: %s", message.from_user.id, re)
     error_message = (
         translations["bmi_exists"][lang]
