@@ -18,11 +18,15 @@ def create_keyboard(user_id: int, lang="uk"):
         btn_bmi_text = get_translation("bmi_calculate_button", lang, "Calculate BMI 📈")
 
     btn_bmi = KeyboardButton(btn_bmi_text)
-    btn_donate = KeyboardButton(get_translation("donate_button", lang, "Donate 💖"))
-    reference_btn = KeyboardButton(get_translation("reference_button", lang, "Reference 📚"))
-    btn_info = KeyboardButton(get_translation("info_button", lang, "Info ℹ️"))
+    reference_btn = KeyboardButton(
+        get_translation("reference_button", lang, "Reference 📚")
+    )
+    btn_about = KeyboardButton(get_translation("about_button", lang, "About 📖"))
+    btn_change_language = KeyboardButton(
+        get_translation("change_language_button", lang, "Change Language 🌐")
+    )
 
-    keyboard.add(btn_bmi, btn_donate, reference_btn, btn_info)
+    keyboard.add(btn_bmi, btn_about, reference_btn, btn_change_language)
     return keyboard
 
 

@@ -23,6 +23,10 @@ class UserStorageInterface(ABC):
     def get_language(self, user_id: str) -> str:
         pass
 
+    @abstractmethod
+    def change_language(self, user_id: str, lang: str) -> bool:
+        pass
+
 
 class BmiStorageInterface(ABC):
     @abstractmethod

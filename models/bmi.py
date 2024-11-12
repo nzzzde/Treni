@@ -11,7 +11,7 @@ class BMIModel:
         self.calculated_bmi = None
 
     def validate(self) -> bool:
-        if not (0 < self.height <= 300 and 0 < self.weight <= 300):
+        if not (100 < self.height <= 300 and 30 < self.weight <= 300):
             return False
         return True
 
@@ -26,9 +26,9 @@ class BMIModel:
 
         if bmi_value < 18.5:
             return "Underweight"
-        elif 18.5 <= bmi_value <= 24.9:
+        elif 18.5 <= bmi_value <= 25:
             return "Normal weight"
-        elif 25 <= bmi_value <= 29.9:
+        elif 25 < bmi_value < 30:
             return "Overweight"
         else:
             return "Obesity"
@@ -41,9 +41,9 @@ class BMIModel:
     def _recommendations_by_bmi(self, bmi_value: float):
         if bmi_value < 18.5:
             return translations["recommendations_underweight"][self.lang]
-        elif 18.5 <= bmi_value <= 24.9:
+        elif 18.5 <= bmi_value <= 25:
             return translations["recommendations_normal"][self.lang]
-        elif 25 <= bmi_value <= 29.9:
+        elif 25 < bmi_value < 30:
             return translations["recommendations_overweight"][self.lang]
         else:
             return translations["recommendations_obesity"][self.lang]
@@ -80,22 +80,30 @@ class BMIModel:
         videos = []
         if bmi_category == "normal":
             videos = [
-                "n_keep_set1_p1.MP4", "n_keep_set1_p2.MP4",
-                "n_keep_set2_p1.MP4", "n_keep_set2_p2.MP4",
-                "n_keep_set3_p1.MP4", "n_keep_set3_p2.MP4",
-                "n_lg_set1_p1.MP4", "n_lg_set1_p2.MP4",
-                "n_Ig_set1_p1.MP4", "n_Ig_set1_p2.MP4",
-                "n_Ig_set2_p1.MP4", "n_Ig_set2_p2.MP4",
-                "n_Ig_set3_p1.MP4", "n_Ig_set3_p2.MP4",
+                "n_keep_set1_p1.MP4",
+                "n_keep_set1_p2.MP4",
+                "n_keep_set2_p1.MP4",
+                "n_keep_set2_p2.MP4",
+                "n_keep_set3_p1.MP4",
+                "n_keep_set3_p2.MP4",
+                "n_lg_set1_p1.MP4",
+                "n_lg_set1_p2.MP4",
+                "n_Ig_set1_p1.MP4",
+                "n_Ig_set1_p2.MP4",
+                "n_Ig_set2_p1.MP4",
+                "n_Ig_set2_p2.MP4",
+                "n_Ig_set3_p1.MP4",
+                "n_Ig_set3_p2.MP4",
             ]
         elif bmi_category == "underweight":
-            videos = [
-                "uw_set1.MP4", "uw_set2.MP4", "uw_set3.MP4"
-            ]
+            videos = ["uw_set1.MP4", "uw_set2.MP4", "uw_set3.MP4"]
         elif bmi_category == "overweight":
             videos = [
-                "ow_set1_p1.MP4", "ow_set1_p2.MP4",
-                "ow_set2_p1.MP4", "ow_set2_p2.MP4",
-                "ow_set3_p1.MP4", "ow_set3_p2.MP4",
+                "ow_set1_p1.MP4",
+                "ow_set1_p2.MP4",
+                "ow_set2_p1.MP4",
+                "ow_set2_p2.MP4",
+                "ow_set3_p1.MP4",
+                "ow_set3_p2.MP4",
             ]
         return videos

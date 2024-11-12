@@ -4,7 +4,14 @@ from handlers.general import start_command, process_contact
 from handlers.bmi import process_bmi_command
 from storage.bmi import BmiStorage
 from storage.user import UserStorage
-from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telebot.types import (
+    Message,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardRemove,
+)
 from telebot import ContinueHandling
 from translations.translations import translations
 from handlers.general import temp_user_storage
@@ -40,6 +47,7 @@ video_sets = {
     ],
 }
 
+
 def register_handlers(bot):
     @bot.message_handler(commands=["start"])
     def handle_start(message: Message):
@@ -51,19 +59,49 @@ def register_handlers(bot):
 
     @bot.message_handler(
         func=lambda message: message.text in ["🇺🇦 Українська", "🇬🇧 English"]
+        or message.text
+        == translations["change_language_button"].get(
+            user_storage.get_language(message.chat.id), "🌐 Change Language"
+        )
     )
     def set_language(message: Message):
+        if message.text == translations["change_language_button"].get(
+            user_storage.get_language(message.chat.id), "🌐 Change Language"
+        ):
+            logger.info("Change Language button clicked by user %s", message.chat.id)
+
+            keyboard = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+            keyboard.add(KeyboardButton("🇬🇧 English"), KeyboardButton("🇺🇦 Українська"))
+
+            bot.send_message(
+                message.chat.id,
+                translations["language_selection"]["en"],
+                reply_markup=keyboard,
+            )
+            return ContinueHandling()
+
         lang = "uk" if message.text == "🇺🇦 Українська" else "en"
-        temp_user_storage[message.chat.id] = {"language": lang}
-        bot.send_message(message.chat.id, translations["start_welcome"][lang])
-        return ContinueHandling()
+
+        if user_storage.user_exists(message.chat.id):
+            user_storage.change_language(message.chat.id, lang)
+            bot.send_message(message.chat.id, translations["language_changed"][lang])
+        else:
+            temp_user_storage[message.chat.id] = {"language": lang}
+            bot.send_message(message.chat.id, translations["start_welcome"][lang])
+
+        send_menu(bot, message.chat.id, translations["menu_prompt"][lang], lang)
 
     @bot.message_handler(content_types=["contact"])
     def handle_contact(message: Message):
         process_contact(bot, message)
         return ContinueHandling()
 
-    @bot.message_handler(func=lambda message: message.text == translations["reference_button"].get(user_storage.get_language(message.chat.id), "📖 Reference"))
+    @bot.message_handler(
+        func=lambda message: message.text
+        == translations["reference_button"].get(
+            user_storage.get_language(message.chat.id), "📖 Reference"
+        )
+    )
     def handle_guide_button(message: Message):
         lang = user_storage.get_language(message.chat.id)
         guide_text = translations["guide_text"].get(lang, "")
@@ -109,17 +147,23 @@ def register_handlers(bot):
             message, process_bmi_command, bot, bmi_storage, lang
         )
 
-    @bot.callback_query_handler(func=lambda call: call.data in ["weight_gain", "maintenance", "weight_loss", "support"])
+    @bot.callback_query_handler(
+        func=lambda call: call.data
+        in ["weight_gain", "maintenance", "weight_loss", "support"]
+    )
     def handle_workout_selection(call):
         workout_selected = call.data
 
         user_workout_selection[call.message.chat.id] = workout_selected
-        logger.info("User %s selected workout: %s", call.message.chat.id, workout_selected)
+        logger.info(
+            "User %s selected workout: %s", call.message.chat.id, workout_selected
+        )
 
         _send_training_days_options(bot, call.message.chat.id)
 
-
-    @bot.callback_query_handler(func=lambda call: call.data in ["1_day", "2_days", "3_days"])
+    @bot.callback_query_handler(
+        func=lambda call: call.data in ["1_day", "2_days", "3_days"]
+    )
     def handle_day_selection(call):
         days_selected = call.data
         lang = user_storage.get_language(call.message.chat.id)
@@ -131,19 +175,27 @@ def register_handlers(bot):
         if bmi_value == "underweight":
             workout_type = "underweight"
         elif bmi_value == "overweight":
-            workout_type = "overweight" if workout_choice == "normal_lg" else "normal_keep"
+            workout_type = (
+                "overweight" if workout_choice == "normal_lg" else "normal_keep"
+            )
         else:
-            workout_type = "normal_keep" if workout_choice == "normal_keep" else "normal_lg"
+            workout_type = (
+                "normal_keep" if workout_choice == "normal_keep" else "normal_lg"
+            )
 
         def extract_set_number(video_name):
             if "set" in video_name:
-                return video_name.split('set')[1][0]
+                return video_name.split("set")[1][0]
             return None
 
         def extract_set_number(video_name):
-            return video_name.split('set')[1][0] if "set" in video_name else None
+            return video_name.split("set")[1][0] if "set" in video_name else None
 
-        num_sets_to_send = 1 if days_selected == "1_day" else 2 if days_selected == "2_days" else len(video_sets[workout_type])
+        num_sets_to_send = (
+            1
+            if days_selected == "1_day"
+            else 2 if days_selected == "2_days" else len(video_sets[workout_type])
+        )
 
         selected_sets = random.sample(video_sets[workout_type], num_sets_to_send)
 
@@ -152,14 +204,32 @@ def register_handlers(bot):
             for video in video_set:
                 video_path = os.path.abspath(f"resources/{video}")
                 logger.info("Sending video: %s", video_path)
-                with open(video_path, 'rb') as video_file:
+                with open(video_path, "rb") as video_file:
                     bot.send_video(call.message.chat.id, video_file)
 
-            instructions = translations["workouts"][workout_type][lang][f"set_{set_number}"]
+            instructions = translations["workouts"][workout_type][lang][
+                f"set_{set_number}"
+            ]
             bot.send_message(call.message.chat.id, "\n".join(instructions))
 
         _prompt_reminder_days(bot, call.message.chat.id, days_selected, lang)
 
+    @bot.message_handler(
+        func=lambda message: message.text
+        == translations["about_button"].get(
+            user_storage.get_language(message.chat.id), "ℹ️ About"
+        )
+    )
+    def handle_about_button(message: Message):
+        lang = user_storage.get_language(message.chat.id)
+        about_text = translations["about_text"].get(lang, "")
+
+        if about_text:
+            logger.info("About button clicked by user %s", message.chat.id)
+            bot.send_message(message.chat.id, about_text)
+        else:
+            logger.error("About text not found for user %s", message.chat.id)
+            bot.send_message(message.chat.id, translations["unknown_command"][lang])
 
     @bot.message_handler(func=lambda message: message.chat.id in user_reminders)
     def handle_day_selection_for_reminder(message):
@@ -167,44 +237,66 @@ def register_handlers(bot):
         selected_day = message.text.replace(" ✅", "")
         user_lang = user_reminders[chat_id]["lang"]
 
+        if selected_day in user_reminders[chat_id]["selected_days"]:
+            bot.send_message(
+                chat_id,
+                translations["day_already_selected"][user_lang].format(
+                    day=selected_day
+                ),
+            )
+
         if selected_day not in user_reminders[chat_id]["selected_days"]:
             user_reminders[chat_id]["selected_days"].append(selected_day)
 
-            remaining_days = user_reminders[chat_id]["total_days_needed"] - len(user_reminders[chat_id]["selected_days"])
+            remaining_days = user_reminders[chat_id]["total_days_needed"] - len(
+                user_reminders[chat_id]["selected_days"]
+            )
 
             if remaining_days > 0:
                 bot.send_message(
                     chat_id,
-                    translations["select_more_days"][user_lang].format(remaining=remaining_days)
+                    translations["select_more_days"][user_lang].format(
+                        remaining=remaining_days
+                    ),
                 )
             else:
                 selected_days_text = ", ".join(user_reminders[chat_id]["selected_days"])
                 bot.send_message(
                     chat_id,
-                    translations["reminder_days_set"][user_lang].format(selected_days=selected_days_text),
-                    reply_markup=ReplyKeyboardRemove()
+                    translations["reminder_days_set"][user_lang].format(
+                        selected_days=selected_days_text
+                    ),
+                    reply_markup=ReplyKeyboardRemove(),
                 )
-                logger.info("User %s reminder days saved: %s", chat_id, user_reminders[chat_id]["selected_days"])
+                logger.info(
+                    "User %s reminder days saved: %s",
+                    chat_id,
+                    user_reminders[chat_id]["selected_days"],
+                )
 
                 user_reminders.pop(chat_id, None)
-                send_menu(bot, chat_id, translations["menu_prompt"][user_lang], user_lang)
+                send_menu(
+                    bot, chat_id, translations["menu_prompt"][user_lang], user_lang
+                )
 
-                update_day_selection_keyboard(bot, chat_id, user_lang)
+                update_day_selection_keyboard(
+                    bot,
+                    chat_id,
+                    user_lang,
+                )
+
 
 def _prompt_reminder_days(bot, chat_id: int, days_selected: str, lang: str):
-    days_options = {
-        "1_day": ["1"],
-        "2_days": ["1", "2"],
-        "3_days": ["1", "2", "3"]
-    }
+    days_options = {"1_day": ["1"], "2_days": ["1", "2"], "3_days": ["1", "2", "3"]}
 
     user_reminders[chat_id] = {
         "selected_days": [],
         "total_days_needed": len(days_options[days_selected]),
-        "lang": lang
+        "lang": lang,
     }
 
     update_day_selection_keyboard(bot, chat_id, lang)
+
 
 def update_day_selection_keyboard(bot, chat_id: int, lang: str):
     keyboard = ReplyKeyboardMarkup(row_width=3, resize_keyboard=True)
@@ -216,20 +308,30 @@ def update_day_selection_keyboard(bot, chat_id: int, lang: str):
         keyboard.add(KeyboardButton(text=day_text))
 
     bot.send_message(
-        chat_id,
-        translations["select_reminder_days"][lang],
-        reply_markup=keyboard
+        chat_id, translations["select_reminder_days"][lang], reply_markup=keyboard
     )
+
 
 def _send_training_days_options(bot, chat_id: int) -> None:
     lang = user_storage.get_language(chat_id)
 
     keyboard = InlineKeyboardMarkup(row_width=1)
-    keyboard.add(InlineKeyboardButton(text=translations["1_day"][lang], callback_data="1_day"))
-    keyboard.add(InlineKeyboardButton(text=translations["2_days"][lang], callback_data="2_days"))
-    keyboard.add(InlineKeyboardButton(text=translations["3_days"][lang], callback_data="3_days"))
+    keyboard.add(
+        InlineKeyboardButton(text=translations["1_day"][lang], callback_data="1_day")
+    )
+    keyboard.add(
+        InlineKeyboardButton(text=translations["2_days"][lang], callback_data="2_days")
+    )
+    keyboard.add(
+        InlineKeyboardButton(text=translations["3_days"][lang], callback_data="3_days")
+    )
 
-    bot.send_message(chat_id, translations["choose_training_days"][lang], reply_markup=keyboard)
+    bot.send_message(
+        chat_id, translations["choose_training_days"][lang], reply_markup=keyboard
+    )
+
 
 def get_instruction_text(bmi_category, days_selected, lang):
-    return translations["workouts"][f"{bmi_category}_training_keep"][lang][days_selected]
+    return translations["workouts"][f"{bmi_category}_training_keep"][lang][
+        days_selected
+    ]
